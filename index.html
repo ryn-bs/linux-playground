@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Class Chat</title>
+
+<!-- Embedded installer (manifest inside the file) -->
+<link rel="manifest" id="manifest">
+
+<style>
+body {
+  margin:0;
+  font-family: monospace;
+  background:#0f0f0f;
+  color:#eee;
+  display:flex;
+  flex-direction:column;
+  height:100vh;
+}
+header{
+  text-align:center;
+  padding:10px;
+  border-bottom:1px solid #333;
+  font-weight:bold;
+}
+#chat{
+  flex:1;
+  overflow-y:auto;
+  padding:10px;
+  white-space:pre-wrap;
+}
+#bar{
+  display:flex;
+  border-top:1px solid #333;
+}
+input{
+  flex:1;
+  background:#111;
+  color:white;
+  border:none;
+  padding:10px;
+  font-family:monospace;
+}
+button{
+  background:#222;
+  color:white;
+  border:none;
+  padding:10px;
+}
+#install{
+  background:#0a84ff;
+  border:none;
+  color:white;
+  padding:6px;
+  cursor:pointer;
+  display:none;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+========== CLASS CHAT ==========
+<br>
+<button id="install">Install App</button>
+</header>
+
+<div id="chat"></div>
+
+<div id="bar">
+<input id="msg" placeholder="Type message...">
+<button onclick="sendMsg()">Send</button>
+</div>
+
+<script>
+/* ===== CHANGE THIS TO YOUR SERVER ===== */
+const SERVER = "bug-free-spork-q7rpgjj49r6qf64g-5000.app.github.dev";
+/* ==================================== */
+
+const ws = new WebSocket(`wss://${SERVER}`);
+const chat = document.getElementById("chat");
+const input = document.getElementById("msg");
+
+function add(t){
+  chat.textContent += t + "\n";
+  chat.scrollTop = chat.scrollHeight;
+}
+
+ws.onmessage = e => {
+  if (e.data === "Password:" || e.data === "Username:") {
+    ws.send(prompt(e.data));
+  } else {
+    add(e.data);
+  }
+};
+
+function sendMsg(){
+  if(input.value.trim()){
+    ws.send(input.value);
+    input.value="";
+  }
+}
+
+input.addEventListener("keydown",e=>{
+  if(e.key==="Enter") sendMsg();
+});
+
+
+// ===== SINGLE FILE INSTALLER MAGIC =====
+const manifest = {
+  name: "Class Chat",
+  short_name: "Chat",
+  start_url: ".",
+  display: "standalone",
+  background_color: "#0f0f0f",
+  theme_color: "#0f0f0f"
+};
+
+const manifestURL = "data:application/json," + encodeURIComponent(JSON.stringify(manifest));
+document.getElementById("manifest").setAttribute("href", manifestURL);
+
+let deferredPrompt;
+const installBtn = document.getElementById("install");
+
+window.addEventListener("beforeinstallprompt", e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  installBtn.style.display = "inline-block";
+});
+
+installBtn.onclick = async () => {
+  deferredPrompt.prompt();
+  deferredPrompt = null;
+};
+// ======================================
+</script>
+
+</body>
+</html>
