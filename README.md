@@ -1,1 +1,3 @@
-# the chat system is fixed :3
+# THE CHAT SYSTEM IS BEING UPDATED. PLEASE WAIT UNTIL UPDATE IS FINISHED FOR YOU TO USE IT.
+
+-ryn (the stupid dev)
